@@ -1,5 +1,6 @@
 import { Product } from "@/types/product";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
   product: Product;
@@ -8,8 +9,12 @@ interface ProductCardProps {
 export default function ProductCard({
   product,
 }: ProductCardProps) {
+    const router = useRouter();
   return (
-    <div className="rounded-xl border bg-white p-4 shadow-sm md:hidden">
+    <div
+  onClick={() => router.push(`/products/${product.id}`)}
+  className="cursor-pointer rounded-xl border bg-white p-4 shadow-sm md:hidden"
+>
       <div className="flex gap-4">
        <Image
   src={product.thumbnail}

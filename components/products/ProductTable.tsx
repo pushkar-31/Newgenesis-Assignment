@@ -1,5 +1,6 @@
 import { Product } from "@/types/product";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface ProductTableProps {
   products: Product[];
@@ -8,6 +9,7 @@ interface ProductTableProps {
 export default function ProductTable({
   products,
 }: ProductTableProps) {
+     const router = useRouter();
   return (
     <div className="hidden overflow-hidden rounded-xl border bg-white shadow-sm md:block">
       <div className="overflow-x-auto">
@@ -39,9 +41,10 @@ export default function ProductTable({
           <tbody>
             {products.map((product) => (
               <tr
-                key={product.id}
-                className="border-b last:border-b-0 hover:bg-gray-50"
-              >
+  key={product.id}
+  onClick={() => router.push(`/products/${product.id}`)}
+  className="cursor-pointer border-b last:border-b-0 hover:bg-gray-50"
+>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
                     <Image
