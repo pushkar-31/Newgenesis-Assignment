@@ -1,47 +1,121 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import AuthGuard from "@/components/auth/AuthGuard";
 import Navbar from "@/components/layout/Navbar";
 import ProductTable from "@/components/products/ProductTable";
 import ProductCard from "@/components/products/ProductCard";
 import Pagination from "@/components/products/Pagination";
-import { getProducts } from "@/services/productService";
+import SearchBar from "@/components/products/SearchBar";
+import {
+  getProducts,
+  searchProducts,
+} from "@/services/productService";
 import { Product } from "@/types/product";
 
 export default function ProductsPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const initialPage = Number(searchParams.get("page")) || 1;
+  const initialPageSize =
+    Number(searchParams.get("pageSize")) || 10;
+  const initialSearch = searchParams.get("search") || "";
+
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
 
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(
+    initialPage >= 1 ? initialPage : 1
+  );
+
+  const [pageSize, setPageSize] = useState(
+    [10, 20, 50].includes(initialPageSize)
+      ? initialPageSize
+      : 10
+  );
+
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] =
+    useState(initialSearch);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [retryCount, setRetryCount] = useState(0);
 
+  const requestIdRef = useRef(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 500);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
+
+    if (search.trim()) {
+      params.set("search", search.trim());
+    }
+
+    router.replace(`${pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+  }, [page, pageSize, search, pathname, router]);
+
   useEffect(() => {
     const loadProducts = async () => {
+      const requestId = ++requestIdRef.current;
+
       try {
         setLoading(true);
         setError("");
 
         const skip = (page - 1) * pageSize;
 
-        const data = await getProducts(pageSize, skip);
+        const data = debouncedSearch
+          ? await searchProducts(
+              debouncedSearch,
+              pageSize,
+              skip
+            )
+          : await getProducts(pageSize, skip);
+
+        if (requestId !== requestIdRef.current) {
+          return;
+        }
 
         setProducts(data.products);
         setTotal(data.total);
       } catch (error) {
+        if (requestId !== requestIdRef.current) {
+          return;
+        }
+
         console.error("Failed to load products:", error);
         setError("Failed to load products.");
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) {
+          setLoading(false);
+        }
       }
     };
 
     loadProducts();
-  }, [page, pageSize, retryCount]);
+  }, [page, pageSize, debouncedSearch, retryCount]);
 
   const handlePageChange = (newPage: number) => {
     const totalPages = Math.ceil(total / pageSize);
@@ -58,6 +132,11 @@ export default function ProductsPage() {
     setPage(1);
   };
 
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
   const handleRetry = () => {
     setRetryCount((count) => count + 1);
   };
@@ -68,14 +147,21 @@ export default function ProductsPage() {
         <Navbar />
 
         <section className="p-4 md:p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Products
-            </h2>
+          <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Products
+              </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
-              Manage your products
-            </p>
+              <p className="mt-1 text-sm text-gray-500">
+                Manage your products
+              </p>
+            </div>
+
+            <SearchBar
+              value={search}
+              onChange={handleSearchChange}
+            />
           </div>
 
           {loading && (
