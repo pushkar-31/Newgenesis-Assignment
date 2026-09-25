@@ -48,8 +48,8 @@ POST /auth/login
 Demo credentials:
 
 ```text
-Username: emilys
-Password: emilyspass
+Username: pushkaradmin
+Password: pushkar@321
 ```
 
 ### Product APIs
