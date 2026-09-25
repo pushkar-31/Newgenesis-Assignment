@@ -5,14 +5,21 @@ interface LoginCredentials {
   password: string;
 }
 
+const DEMO_USERNAME = "pushkaradmin";
+const DEMO_PASSWORD = "pushkar@321";
+
 export const loginUser = async ({
   username,
   password,
 }: LoginCredentials) => {
-  const response = await api.post("/auth/login", {
-    username,
-    password,
-  });
+  if (
+    username === DEMO_USERNAME &&
+    password === DEMO_PASSWORD
+  ) {
+    return {
+      accessToken: "pushkar-admin-demo-token",
+    };
+  }
 
-  return response.data;
+  throw new Error("Invalid username or password.");
 };
