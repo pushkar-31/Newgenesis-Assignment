@@ -1,39 +1,35 @@
+"use client";
+
 import { Product } from "@/types/product";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface ProductTableProps {
   products: Product[];
+  onEdit: (product: Product) => void;
+  onDelete: (product: Product) => void;
 }
 
 export default function ProductTable({
   products,
+  onEdit,
+  onDelete,
 }: ProductTableProps) {
-     const router = useRouter();
+  const router = useRouter();
+
   return (
     <div className="hidden overflow-hidden rounded-xl border bg-white shadow-sm md:block">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[800px]">
-          <thead className="bg-gray-50">
-            <tr className="border-b">
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                Product
-              </th>
-
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                Category
-              </th>
-
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                Price
-              </th>
-
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                Rating
-              </th>
-
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                Stock
+        <table className="w-full text-left text-sm">
+          <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+            <tr>
+              <th className="px-6 py-4">Product</th>
+              <th className="px-6 py-4">Category</th>
+              <th className="px-6 py-4">Price</th>
+              <th className="px-6 py-4">Rating</th>
+              <th className="px-6 py-4">Stock</th>
+              <th className="px-6 py-4 text-right">
+                Actions
               </th>
             </tr>
           </thead>
@@ -41,22 +37,24 @@ export default function ProductTable({
           <tbody>
             {products.map((product) => (
               <tr
-  key={product.id}
-  onClick={() => router.push(`/products/${product.id}`)}
-  className="cursor-pointer border-b last:border-b-0 hover:bg-gray-50"
->
+                key={product.id}
+                onClick={() =>
+                  router.push(`/products/${product.id}`)
+                }
+                className="cursor-pointer border-b last:border-b-0 hover:bg-gray-50"
+              >
                 <td className="px-6 py-4">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <Image
-  src={product.thumbnail}
-  alt={product.title}
-  width={56}
-  height={56}
-  className="h-14 w-14 rounded-lg object-cover"
-/>
+                      src={product.thumbnail}
+                      alt={product.title}
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 rounded-lg object-cover"
+                    />
 
-                    <div>
-                      <p className="font-medium text-gray-900">
+                    <div className="min-w-0">
+                      <p className="max-w-xs truncate font-medium text-gray-900">
                         {product.title}
                       </p>
 
@@ -67,15 +65,15 @@ export default function ProductTable({
                   </div>
                 </td>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 text-gray-600">
                   {product.category}
                 </td>
 
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                <td className="px-6 py-4 font-medium text-gray-900">
                   ${product.price.toFixed(2)}
                 </td>
 
-                <td className="px-6 py-4 text-sm text-gray-600">
+                <td className="px-6 py-4 text-gray-600">
                   ⭐ {product.rating}
                 </td>
 
@@ -89,6 +87,32 @@ export default function ProductTable({
                   >
                     {product.stock} in stock
                   </span>
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEdit(product);
+                      }}
+                      className="rounded-lg border border-blue-200 px-3 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDelete(product);
+                      }}
+                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
