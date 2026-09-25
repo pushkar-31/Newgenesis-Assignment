@@ -1,36 +1,244 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Product Admin Dashboard
+
+A responsive Product Admin Dashboard built with Next.js, React, TypeScript, and Tailwind CSS using the DummyJSON API.
+
+## Features
+
+- User authentication and logout
+- Protected product routes
+- Product listing
+- Responsive desktop table and mobile cards
+- Pagination with page size selection
+- Debounced product search
+- Category filtering
+- Sorting by title, price, and rating
+- Product details page
+- Product image gallery and reviews
+- Add product
+- Edit product
+- Delete product with confirmation
+- Form validation
+- Loading, error, empty, and retry states
+- URL-based search, filtering, sorting, and pagination
+- Invalid URL parameter handling
+- Race-condition protection for search requests
+- Duplicate request prevention
+
+## Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Axios
+- DummyJSON API
+- ESLint
+- Git & GitHub
+
+## API
+
+This project uses the free DummyJSON REST API.
+
+### Authentication
+
+```text
+POST /auth/login
+```
+
+Demo credentials:
+
+```text
+Username: emilys
+Password: emilyspass
+```
+
+### Product APIs
+
+```text
+GET    /products
+GET    /products/:id
+GET    /products/search?q=
+GET    /products/category-list
+GET    /products/category/:category
+POST   /products/add
+PUT    /products/:id
+DELETE /products/:id
+```
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/pushkar-31/Newgenesis-Assignment.git
+```
+
+### 2. Navigate to the project
+
+```bash
+cd Newgenesis-Assignment
+```
+
+### 3. Install dependencies
+
+```bash
+npm install
+```
+
+### 4. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 5. Open the application
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+http://localhost:3000
+```
 
-## Learn More
+## Demo Login
 
-To learn more about Next.js, take a look at the following resources:
+```text
+Username: emilys
+Password: emilyspass
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+product-admin-dashboard/
+│
+├── app/
+│   ├── login/
+│   │   └── page.tsx
+│   ├── products/
+│   │   ├── [id]/
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   └── ProductsContent.tsx
+│   ├── page.tsx
+│   ├── layout.tsx
+│   └── globals.css
+│
+├── components/
+│   ├── auth/
+│   │   └── AuthGuard.tsx
+│   ├── layout/
+│   │   └── Navbar.tsx
+│   └── products/
+│       ├── FilterBar.tsx
+│       ├── Pagination.tsx
+│       ├── ProductCard.tsx
+│       ├── ProductForm.tsx
+│       ├── ProductTable.tsx
+│       └── SearchBar.tsx
+│
+├── lib/
+│   └── axios.ts
+│
+├── services/
+│   ├── authService.ts
+│   └── productService.ts
+│
+├── types/
+│   └── product.ts
+│
+├── next.config.ts
+├── package.json
+└── README.md
+```
 
-## Deploy on Vercel
+## Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project separates UI components from API logic.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Axios
+
+A shared Axios instance is used for all API requests.
+
+```text
+lib/axios.ts
+```
+
+It handles:
+
+- Base API URL
+- Request headers
+- Authentication token
+- Centralized API error handling
+
+### Services
+
+Authentication API logic:
+
+```text
+services/authService.ts
+```
+
+Product API logic:
+
+```text
+services/productService.ts
+```
+
+### Components
+
+Reusable UI components are separated into smaller components such as:
+
+- SearchBar
+- FilterBar
+- Pagination
+- ProductTable
+- ProductCard
+- ProductForm
+- AuthGuard
+- Navbar
+
+## Important Notes
+
+### CRUD Persistence
+
+DummyJSON simulates product creation, updating, and deletion. These changes are not permanently persisted on the server.
+
+The application updates its local state after successful CRUD operations so that changes are immediately visible during the current session.
+
+### Authentication
+
+The access token is stored in `localStorage` for this assignment. Protected product routes require a valid stored token.
+
+## Available Scripts
+
+### Development
+
+```bash
+npm run dev
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+### Production Build
+
+```bash
+npm run build
+```
+
+### Production Start
+
+```bash
+npm start
+```
+
+## Deployment
+
+The application can be deployed using platforms such as Vercel or Netlify.
+
+## License
+
+This project was created as a frontend assignment.
