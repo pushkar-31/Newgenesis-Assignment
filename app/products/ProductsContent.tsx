@@ -32,14 +32,40 @@ import {
   CreateProductData,
 } from "@/types/product";
 
+const VALID_PAGE_SIZES = [10, 20, 50];
+const VALID_SORT_FIELDS = ["", "title", "price", "rating"];
+
+const parsePositiveInteger = (value: string | null) => {
+  if (!value || !/^\d+$/.test(value)) {
+    return null;
+  }
+
+  const parsed = Number(value);
+
+  return Number.isSafeInteger(parsed) && parsed > 0
+    ? parsed
+    : null;
+};
+
 export default function ProductsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const initialPage = Number(searchParams.get("page")) || 1;
+  const parsedPage = parsePositiveInteger(
+    searchParams.get("page")
+  );
+
+  const parsedPageSize = parsePositiveInteger(
+    searchParams.get("pageSize")
+  );
+
+  const initialPage = parsedPage || 1;
+
   const initialPageSize =
-    Number(searchParams.get("pageSize")) || 10;
+    parsedPageSize && VALID_PAGE_SIZES.includes(parsedPageSize)
+      ? parsedPageSize
+      : 10;
 
   const initialSearch =
     searchParams.get("search") || "";
@@ -47,8 +73,14 @@ export default function ProductsPage() {
   const initialCategory =
     searchParams.get("category") || "";
 
-  const initialSortBy =
+  const requestedSortBy =
     searchParams.get("sortBy") || "";
+
+  const initialSortBy = VALID_SORT_FIELDS.includes(
+    requestedSortBy
+  )
+    ? requestedSortBy
+    : "";
 
   const initialOrder =
     searchParams.get("order") === "desc"
@@ -184,6 +216,25 @@ export default function ProductsPage() {
     const loadProducts = async () => {
       const requestId = ++requestIdRef.current;
 
+      const applyPage = (
+        items: Product[],
+        totalCount: number
+      ) => {
+        const totalPages = Math.max(
+          1,
+          Math.ceil(totalCount / pageSize)
+        );
+
+        if (page > totalPages) {
+          setPage(totalPages);
+          return false;
+        }
+
+        setProducts(items);
+        setTotal(totalCount);
+        return true;
+      };
+
       try {
         setLoading(true);
         setError("");
@@ -249,8 +300,7 @@ export default function ProductsPage() {
               startIndex + pageSize
             );
 
-          setProducts(paginatedProducts);
-          setTotal(filteredTotal);
+          applyPage(paginatedProducts, filteredTotal);
 
           return;
         }
@@ -271,8 +321,7 @@ export default function ProductsPage() {
             return;
           }
 
-          setProducts(response.products);
-          setTotal(response.total);
+          applyPage(response.products, response.total);
 
           return;
         }
@@ -312,8 +361,7 @@ export default function ProductsPage() {
           return;
         }
 
-        setProducts(response.products);
-        setTotal(response.total);
+        applyPage(response.products, response.total);
       } catch (error) {
         if (
           requestId !== requestIdRef.current
