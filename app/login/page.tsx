@@ -126,11 +126,11 @@ export default function LoginPage() {
           </p>
 
           <p className="mt-1 text-sm text-gray-700">
-            Username: <span className="font-medium">emilys</span>
+            Username: <span className="font-medium">pushkaradmin</span>
           </p>
 
           <p className="text-sm text-gray-700">
-            Password: <span className="font-medium">emilyspass</span>
+            Password: <span className="font-medium">pushkar@321</span>
           </p>
         </div>
       </div>
